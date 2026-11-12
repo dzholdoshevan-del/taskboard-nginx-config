@@ -1,15 +1,15 @@
-name : Deploy Nginx Configuration 
+name: Deploy Nginx Configuration
 
 on:
   push:
     branches: [main]
     paths:
-       - ' nginx/taskboard.conf'
-       - ' .github/workflows/deploy.yml'
-    workflow_dispatch:
+      - 'nginx/taskboard.conf'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
 
 permissions:
-  contents; read 
+  contents: read
 
 concurrency:
   group: taskboard-nginx-deploy
@@ -18,19 +18,20 @@ concurrency:
 jobs:
   deploy:
     runs-on: [self-hosted, linux, taskboard-nginx]
-    timeout-minutes: 10 
-      steps:
-        -name: Checkout repository
-         uses: actions/checkout@v4
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-        -name: Stage configuration
-         run: |
-           install -m 644 nginx/taskboard.conf \/var/lib/taskboard-nginx/incoming/taskboard.conf
+      - name: Stage configuration
+        run: |
+          install -m 644 nginx/taskboard.conf \
+            /var/lib/taskboard-nginx/incoming/taskboard.conf
 
-       -name: Deploy configuration 
+      - name: Deploy configuration
         run: sudo -n /usr/local/sbin/deploy-taskboard-nginx
 
-       -name: Verify Nginx
-       run: |
+      - name: Verify Nginx
+        run: |
           curl --fail --silent --show-error --max-time 10 \
             http://127.0.0.1/nginx-status
